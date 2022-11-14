@@ -1,15 +1,18 @@
 import time,random
 
-numr=30
+numr=20
 data=[]
 index=0
-ref=[i for i in range(34)]+[i for i in range(34,0,-1)]
+ref=[i for i in range(12)]+[i for i in range(12,0,-1)]
 
 def reading_from_sensor():
 	global index
-	time.sleep(0.1)
+	time.sleep(0.2)
 	index+=1
 	return ref[index%(len(ref))]
+	# return random.randint(0,15)
+
+
 file="data.csv"
 open(file,"w").close()
 flag=1
