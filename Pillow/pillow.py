@@ -2,7 +2,7 @@ import requests
 import os
 import jwt
  
-url="http://172.23.20.31:8000//"
+url="http://172.23.21.101:8000//"
 file_local="data.csv"
 user="001"
 # pas="no"

@@ -1,22 +1,30 @@
-import { Box, FormControl, TextField, Typography } from '@mui/material'
+import { Box, Button, FormControl, TextField, Typography } from '@mui/material'
 import { grey } from '@mui/material/colors'
 import { Stack } from '@mui/system'
 import axios from 'axios'
 import Head from 'next/head'
+import { config } from 'process'
 import { useEffect, useState } from 'react'
 import Chart from '../chart/Chart'
 import styles from '../styles/Home.module.css'
 
-const url = "http://172.23.20.31:8000//"
-const filename = "user001.csv"
+const url = "http://172.17.76.7:8000//"
+const ecgFile = "ecg001.csv"
+const dataFile = "user001.json"
 
 export default function Home() {
   const [values, setValues] = useState<Number[]>([])
 
+  const [snore, setSnore] = useState(0);
+  const [apnea, setApnea] = useState(0);
+  const [presence, setPresence] = useState(0);
+  const [deepSleepStart, setDeepSleepStart] = useState(0);
+  const [deepSleepEnd, setDeepSleepEnd] = useState(0);
+
   useEffect(() => {
     const interval = setInterval(() => {
       axios
-        .get(url + filename)
+        .get(url + ecgFile)
         .then((res) => {
           const arr = values.concat(res.data);
           setValues(arr)
@@ -28,7 +36,19 @@ export default function Home() {
 
   }, [])
 
+  const handleFetch = () => {
+    axios
+      .get(url + dataFile)
+      .then((res) => {
+        let result = JSON.parse(res.data)
+        setApnea(result.apnea.events);
+        setDeepSleepEnd(result['Deep-sleep'].end);
+        setDeepSleepStart(result['Deep-sleep'].start);
+        setPresence(result.apnea.presence);
+        setSnore(result.snore);
 
+      })
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -58,44 +78,53 @@ export default function Home() {
             <Stack direction="column" spacing={3} alignItems="center" justifyContent="center">
               <Typography variant="h5" component="div" style={{ fontWeight: '300' }}>Data Fetched</Typography>
               <FormControl>
-                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Sleep Apnea</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Sleep Apnea Events</Typography>
                 <TextField
                   variant="outlined"
+                  value={apnea}
                   InputProps={{
                     readOnly: true,
                   }} />
               </FormControl>
               <FormControl>
-                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Temperature</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Is Sleep Apnea Present?</Typography>
                 <TextField
                   variant="outlined"
+                  value={presence === 0 ? 'False' : 'True'}
                   InputProps={{
                     readOnly: true,
                   }} />
               </FormControl>
               <FormControl>
-                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Humidity</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Deep Sleep Start</Typography>
                 <TextField
                   variant="outlined"
+                  value={deepSleepStart}
                   InputProps={{
                     readOnly: true,
                   }} />
               </FormControl>
               <FormControl>
-                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Stress</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Deep Sleep End</Typography>
                 <TextField
                   variant="outlined"
+                  value={deepSleepEnd}
                   InputProps={{
                     readOnly: true,
                   }} />
               </FormControl>
               <FormControl>
-                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>SpO2</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: '800' }}>Snore</Typography>
                 <TextField
                   variant="outlined"
+                  value={snore === 1 ? 'Present' : 'Absent'}
                   InputProps={{
                     readOnly: true,
                   }} />
+              </FormControl>
+
+              <FormControl>
+                <Button variant='outlined' sx={{ width: '100%' }} onClick={handleFetch}>Fetch Data</Button>
               </FormControl>
             </Stack>
           </Box>
