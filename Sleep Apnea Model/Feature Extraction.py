@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 # coding: utf-8
 
 # In[2]:
@@ -27,8 +27,8 @@ MAX_RRI = 1.0 / (MIN_HR / 60.0) * 1000
 
 # In[8]:
 
+path= os.path.abspath(os.getcwd())
 
-path = '/home/era/yukkta'
 os.chdir(path)
 data_path = '/home/era/yukkta/apnea-ecg-database-1.0.0/'
 
@@ -82,48 +82,48 @@ for data_index in range(len(data_name)):
     rri = np.diff(qrs_ann)
     rri_ms = rri.astype('float') / FS * 1000.0
 
-        rri_filt = moving_median(rri_ms)
+    rri_filt = moving_median(rri_ms)
 
-        if len(rri_filt) > 5 and (np.min(rri_filt) >= MIN_RRI and np.max(rri_filt) <= MAX_RRI):
+    if len(rri_filt) > 5 and (np.min(rri_filt) >= MIN_RRI and np.max(rri_filt) <= MAX_RRI):
 
-            rri_time = np.cumsum(rri_filt) / 1000.0  # make it seconds
-            time_rri = rri_time - rri_time[0]  
+        rri_time = np.cumsum(rri_filt) / 1000.0  # make it seconds
+        time_rri = rri_time - rri_time[0]  
 
-            time_rri_interp = np.arange(0, time_rri[-1], 1 / float(FS_INTP))
-            tck = interpolate.splrep(time_rri, rri_filt, s=0)
-            rri_interp = interpolate.splev(time_rri_interp, tck, der=0)
-            time_intp, rri_intp = time_rri_interp, rri_interp
-
-
-            time_qrs = qrs_ann / float(FS)
-            time_qrs = time_qrs - time_qrs[0]
-            time_qrs_interp = np.arange(0, time_qrs[-1], 1/float(FS_INTP))
-            tck = interpolate.splrep(time_qrs, qrs_amp, s=0)
-            qrs_interp = interpolate.splev(time_qrs_interp, tck, der=0)
-            qrs_time_intp, qrs_intp = time_qrs_interp, qrs_interp
+        time_rri_interp = np.arange(0, time_rri[-1], 1 / float(FS_INTP))
+        tck = interpolate.splrep(time_rri, rri_filt, s=0)
+        rri_interp = interpolate.splev(time_rri_interp, tck, der=0)
+        time_intp, rri_intp = time_rri_interp, rri_interp
 
 
-            rri_intp = rri_intp[(time_intp >= MARGIN) & (time_intp < (60+MARGIN))]
-            qrs_intp = qrs_intp[(qrs_time_intp >= MARGIN) & (qrs_time_intp < (60 + MARGIN))]
+        time_qrs = qrs_ann / float(FS)
+        time_qrs = time_qrs - time_qrs[0]
+        time_qrs_interp = np.arange(0, time_qrs[-1], 1/float(FS_INTP))
+        tck = interpolate.splrep(time_qrs, qrs_amp, s=0)
+        qrs_interp = interpolate.splev(time_qrs_interp, tck, der=0)
+        qrs_time_intp, qrs_intp = time_qrs_interp, qrs_interp
 
 
-            if len(rri_intp) != (FS_INTP * 60):
-                skip = 1
+        rri_intp = rri_intp[(time_intp >= MARGIN) & (time_intp < (60+MARGIN))]
+        qrs_intp = qrs_intp[(qrs_time_intp >= MARGIN) & (qrs_time_intp < (60 + MARGIN))]
+
+
+        if len(rri_intp) != (FS_INTP * 60):
+            skip = 1
+        else:
+            skip = 0
+
+        if skip == 0:
+            rri_intp = rri_intp - np.mean(rri_intp)
+            qrs_intp = qrs_intp - np.mean(qrs_intp)
+            if apn_ann[0] == 'N': # Normal
+                label = 0.0
+            elif apn_ann[0] == 'A': # Apnea
+                label = 1.0
             else:
-                skip = 0
+                label = 2.0
 
-            if skip == 0:
-                rri_intp = rri_intp - np.mean(rri_intp)
-                qrs_intp = qrs_intp - np.mean(qrs_intp)
-                if apn_ann[0] == 'N': # Normal
-                    label = 0.0
-                elif apn_ann[0] == 'A': # Apnea
-                    label = 1.0
-                else:
-                    label = 2.0
-
-                input_array.append([rri_intp, qrs_intp, age[data_index], sex[data_index]])
-                label_array.append(label)
+            input_array.append([rri_intp, qrs_intp, age[data_index], sex[data_index]])
+            label_array.append(label)
 np.save('input.npy', input_array)
 np.save('label.npy', label_array)
 
