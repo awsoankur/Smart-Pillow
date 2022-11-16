@@ -1,22 +1,21 @@
 import requests
 import os
-import jwt
  
-url="http://172.23.20.31:8000//"
-file_local="data.csv"
+url="http://172.17.76.7:8000//"
+file_local_ecg="data_ecg.csv"
+file_local_pre="data_pre.csv"
 user="001"
-# pas="no"
-file_server="user"+user+".csv"
-# payload={
-# 	user:pas
-# }
-# encoded=jwt.encode(payload,"string",algorithm="HS256")
-
-stat=os.stat(file_local).st_mtime
+file_server=user+".csv"
+stat_ecg=os.stat(file_local_ecg).st_mtime
+stat_presure=os.stat(file_local_pre).st_mtime
 
 
 while 1:
-	if (stat!=os.stat(file_local).st_mtime):
-		r = requests.put(url+file_server, data=open(file_local, 'rb'))#,auth=encoded)
-		stat=os.stat(file_local).st_mtime
-		print("sent")
+	if (stat_ecg!=os.stat(file_local_ecg).st_mtime):
+		r = requests.put(url+"ecg"+file_server, data=open(file_local_ecg, 'rb'))
+		stat_ecg=os.stat(file_local_ecg).st_mtime
+		print("sent_ecg")
+	if (stat_presure!=os.stat(file_local_pre).st_mtime):
+		r = requests.put(url+"pre"+file_server, data=open(file_local_pre, 'rb'))
+		stat_presure=os.stat(file_local_pre).st_mtime
+		print("sent_pre")
