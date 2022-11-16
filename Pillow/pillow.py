@@ -1,9 +1,10 @@
 import requests
 import os
- 
+
 url="http://172.17.76.7:8000//"
 file_local_ecg="data_ecg.csv"
 file_local_pre="data_pre.csv"
+
 user="001"
 file_server=user+".csv"
 stat_ecg=os.stat(file_local_ecg).st_mtime

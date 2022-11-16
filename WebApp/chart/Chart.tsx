@@ -32,6 +32,14 @@ export const options = {
             text: 'Chart.js Line Chart',
         },
     },
+    scales: {
+        y:
+          {
+            min: 0,
+            max: 10,
+            stepSize: 5,
+          },
+      },
 };
 
 const labels = new Array(100).fill(1).map(() => "")
