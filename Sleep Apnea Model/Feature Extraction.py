@@ -90,13 +90,14 @@ for data_index in range(len(data_name)):
 
         rri_time = np.cumsum(rri_filt) / 1000.0  # make it seconds
         time_rri = rri_time - rri_time[0]  
-
+        
+        #Digitizing the data
         time_rri_interp = np.arange(0, time_rri[-1], 1 / float(FS_INTP))
         tck = interpolate.splrep(time_rri, rri_filt, s=0)
         rri_interp = interpolate.splev(time_rri_interp, tck, der=0)
         time_intp, rri_intp = time_rri_interp, rri_interp
 
-        
+        #interpolating the data using the known data points
         time_qrs = qrs_ann / float(FS)
         time_qrs = time_qrs - time_qrs[0]
         time_qrs_interp = np.arange(0, time_qrs[-1], 1/float(FS_INTP))
@@ -108,7 +109,7 @@ for data_index in range(len(data_name)):
         rri_intp = rri_intp[(time_intp >= MARGIN) & (time_intp < (60+MARGIN))]
         qrs_intp = qrs_intp[(qrs_time_intp >= MARGIN) & (qrs_time_intp < (60 + MARGIN))]
 
-
+#Forming the labels for the training.
         if len(rri_intp) != (FS_INTP * 60):
             skip = 1
         else:
@@ -123,7 +124,8 @@ for data_index in range(len(data_name)):
                 label = 1.0
             else:
                 label = 2.0
-
+                
+#merging the waveform related data as well as age and sex together into one single data file
             input_array.append([rri_intp, qrs_intp, age[data_index], sex[data_index]])
             label_array.append(label)
 np.save('input.npy', input_array)
