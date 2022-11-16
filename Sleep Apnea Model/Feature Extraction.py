@@ -3,7 +3,9 @@
 
 # In[2]:
 
-
+#importing the required libraries. 
+#pip install wfdb
+#pip install hrv==0.1.5
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = '-1'
 import numpy as np
@@ -15,7 +17,7 @@ from scipy import interpolate
 
 # In[3]:
 
-
+#constants used later
 FS = 100.0
 MARGIN = 10
 FS_INTP = 4
@@ -26,14 +28,15 @@ MAX_RRI = 1.0 / (MIN_HR / 60.0) * 1000
 
 
 # In[8]:
-
+#Saving names of files being used
 path= os.path.abspath(os.getcwd())
 
 os.chdir(path)
-data_path = '/home/era/yukkta/apnea-ecg-database-1.0.0/'
+data_path = '/home/era/yukkta/apnea-ecg-database-1.0.0/'   #Please change path as necessary
 
 data_name= ['a01', 'a02', 'a03', 'a04', 'a05','a06', 'a07', 'a08', 'a09', 'a10', 'a11', 'a12', 'a13', 'a14', 'a15', 'a16', 'a17', 'a18', 'a19', 'a20', 'b01', 'b02', 'b03', 'b04', 'b05', 'c01', 'c02', 'c03', 'c04', 'c05', 'c06', 'c07', 'c08', 'c09', 'c10']
 
+#Saving the age file
 file = open("age.csv", "r")
 age = list(csv.reader(file, delimiter=","))
 age = age[0]
@@ -41,7 +44,7 @@ for i in range(len(age)):
     age[i] = int(age[i])
 file.close()
 
-
+#Saving the sex file
 file = open("sex.csv", "r")
 sex = list(csv.reader(file, delimiter=","))
 sex = sex[0]
@@ -59,19 +62,18 @@ label_array = []
 
 # In[10]:
 
-
+#itterating over all the datanames saved earlier.
 for data_index in range(len(data_name)):
-    print (data_name[data_index])
-    win_num = len(wfdb.rdann(os.path.join(data_path,data_name[data_index]), 'apn').symbol)
-    signals, fields = wfdb.rdsamp(os.path.join(data_path,data_name[data_index]))
+    win_num = len(wfdb.rdann(os.path.join(data_path,data_name[data_index]), 'apn').symbol) #reads the apnea annotations
+    signals, fields = wfdb.rdsamp(os.path.join(data_path,data_name[data_index])) #extracts the signals and their field names from the fed data.
     for index in range(1, win_num):
-        samp_from = index * 60 * FS # 60 seconds
-        samp_to = samp_from + 60 * FS  # 60 seconds
-
+        samp_from = index * 60 * FS # 60 seconds duration.         
+        samp_to = samp_from + 60 * FS  # as we need 1 min worth of data.
+        # every min of data with a margin of 10 secs on both ends
         qrs_ann = wfdb.rdann(data_path + data_name[data_index], 'qrs', sampfrom=samp_from - (MARGIN*100), sampto=samp_to + (MARGIN*100)).sample
         apn_ann = wfdb.rdann(data_path + data_name[data_index], 'apn', sampfrom=samp_from, sampto=samp_to-1).symbol
         
-        
+        # extracting the peaks (mmaximum values) during the sampling interval.
         interval = int(FS * 0.250)
         qrs_amp = []
         for index in range(len(qrs_ann)):
@@ -81,9 +83,9 @@ for data_index in range(len(data_name)):
             
     rri = np.diff(qrs_ann)
     rri_ms = rri.astype('float') / FS * 1000.0
-
+        
     rri_filt = moving_median(rri_ms)
-
+    
     if len(rri_filt) > 5 and (np.min(rri_filt) >= MIN_RRI and np.max(rri_filt) <= MAX_RRI):
 
         rri_time = np.cumsum(rri_filt) / 1000.0  # make it seconds
@@ -94,7 +96,7 @@ for data_index in range(len(data_name)):
         rri_interp = interpolate.splev(time_rri_interp, tck, der=0)
         time_intp, rri_intp = time_rri_interp, rri_interp
 
-
+        
         time_qrs = qrs_ann / float(FS)
         time_qrs = time_qrs - time_qrs[0]
         time_qrs_interp = np.arange(0, time_qrs[-1], 1/float(FS_INTP))
