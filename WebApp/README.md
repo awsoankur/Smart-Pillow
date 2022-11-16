@@ -1,30 +1,13 @@
-### Install nvm
-Open a terminal and then type:
-```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-```
-```
-source ~/.bashrc
-```
-Run this command succesfully ( You might also need to install curl )
+# Install NPM and Node
+Download Node LTS from this website : [Download](https://nodejs.org/en/download/)
 
-### Verify installation - should output nvm if successful
-Now close the terminal and open a new terminal
-```bash
-command -v nvm
+Check installation by running command
 ```
-
-### Install Node 16.13.0
-```bash
-nvm install 16.13.0
+npm
 ```
-```bash
-nvm alias default 16.13.0
-```
-```bash
-nvm use 16.13.0
-```
+in the terminal.
 ### Install yarn
+Open a new terminal and run :
 ```bash
 npm install --global yarn
 ```
@@ -35,7 +18,7 @@ npm install --global concurrently
 ```
 
 ### Install dependencies for the project
-Change the working directory to the project directory i.e. WebApp
+In the terminal, change the working directory to the project directory i.e. WebApp
 Run the following command to install the dependencies.
 ```bash
 yarn
