@@ -1,3 +1,4 @@
+For Windows: (During the process, you may encounter several errors dependin gupon the configurations of your system. Please refer to the error messages and fix them accordingly.)
 # Install NPM and Node
 Download Node LTS from this website : [Download](https://nodejs.org/en/download/)
 
