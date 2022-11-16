@@ -150,6 +150,6 @@ def value():
 
 	model.compile('Adam', loss='BinaryCrossentropy', metrics=[tf.keras.metrics.Recall(),tf.keras.metrics.Precision()])
 
-	hist = model.fit(train, epochs=1, validation_data=test)
+	hist = model.fit(train, epochs=5, validation_data=test)
 
 	return model.predict(test)

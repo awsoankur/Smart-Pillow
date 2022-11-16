@@ -17,6 +17,7 @@ file="data_pre.csv"
 open(file,"w").close()
 flag=1
 while flag:
+	#genereate data
 	reading=reading_from_sensor()
 	if (len(data)>=numr):
 		with open(file,"w") as f:

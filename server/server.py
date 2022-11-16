@@ -32,6 +32,7 @@ link = IP
 url = pyqrcode.create(link)
 url.svg("myqr.svg", scale=8)
 
+#extracting output from models
 res=Prediction.values()
 result=[i for i in res]
 sno=snore.value()
@@ -65,7 +66,9 @@ class HTTPRequestHandler(server.SimpleHTTPRequestHandler):
         server.SimpleHTTPRequestHandler.end_headers(self)
 
     def do_GET(self):
-        print(self)
+        # return the content of the file requested
+
+        # print(self)
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
@@ -113,6 +116,8 @@ class HTTPRequestHandler(server.SimpleHTTPRequestHandler):
         reply_body = 'Saved "%s"\n' % filename
         self.wfile.write(reply_body.encode('utf-8'))
 
+        #update the user json file storing final info
+
         dict=json.load(open("user001.json","r"))
         dict["apnea"]["presence"]=0
         dict["apnea"]["events"]=0
@@ -142,6 +147,8 @@ class HTTPRequestHandler(server.SimpleHTTPRequestHandler):
                     count_snore+=1
                 if (count_snore):
                     dict["snore"]=count_snore
+
+        # write the jsons
         json.dump(dict,open("user001.json","w"))
 
 
