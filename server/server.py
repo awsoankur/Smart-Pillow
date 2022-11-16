@@ -19,7 +19,7 @@ import png
 # assigning the appropriate port value
 PORT = 8000
 # this finds the name of the computer user
-os.environ['USERPROFILE']
+
 desktop = os.path.abspath(os.getcwd())
 os.chdir(desktop)
 
